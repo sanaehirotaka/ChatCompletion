@@ -100,7 +100,11 @@ public class ChatCompletionService
                 new (GeminiSafetyCategory.Harassment, GeminiSafetyThreshold.BlockNone),
                 new (GeminiSafetyCategory.DangerousContent, GeminiSafetyThreshold.BlockNone),
                 new (GeminiSafetyCategory.SexuallyExplicit, GeminiSafetyThreshold.BlockNone)
-            ]
+            ],
+            ThinkingConfig = new()
+            {
+                ThinkingBudget = 6144
+            }
         };
     }
 
