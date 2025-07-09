@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatCompletionApi", "ChatCompletionApi\ChatCompletionApi.csproj", "{20B82AD7-29A6-45B9-AB65-C4E35E5EE15E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20B82AD7-29A6-45B9-AB65-C4E35E5EE15E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20B82AD7-29A6-45B9-AB65-C4E35E5EE15E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20B82AD7-29A6-45B9-AB65-C4E35E5EE15E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20B82AD7-29A6-45B9-AB65-C4E35E5EE15E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {654DD2ED-F50A-4A04-8C4F-1B7B4A784857}
+	EndGlobalSection
+EndGlobal
