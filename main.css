@@ -1,0 +1,214 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+    background-color: #f8f9fa;
+}
+
+footer {
+    background-color: white;
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+p:has(+ ul) {
+    margin-bottom: 0;
+}
+
+#chat {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#chat h1 {
+    font-size: 1.5em;
+}
+#chat h2 {
+    font-size: 1.4em;
+}
+#chat h3 {
+    font-size: 1.3em;
+}
+#chat h4 {
+    font-size: 1.2em;
+}
+#chat h5 {
+    font-size: 1.1em;
+}
+#chat h6 {
+    font-size: 1.0em;
+}
+
+#chat .completing {
+    padding: 8px 12px;
+    word-wrap: break-word;
+}
+
+#chat .message {
+    display: flex;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+#chat .message.role-user {
+    justify-content: flex-end;
+}
+
+#chat .message.role-system ,
+#chat .message.role-assistant {
+    justify-content: flex-start;
+}
+
+#chat .message .items {
+    width: fit-content;
+    max-width: 90%;
+}
+
+#chat .message .items:has(.completing) .item {
+    display: none;
+}
+
+#chat .message .items .item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    word-wrap: break-word;
+    background-color: white;
+
+    position: relative;
+    padding: .375rem .75rem;
+    margin-bottom: 0.25em;
+}
+
+#chat .message .items .item:has([contenteditable]) {
+    border: 0;
+    padding: 0;
+}
+
+
+#chat .message.role-system .items .item .inner {
+    max-height: 6em;
+    overflow-y: auto;
+}
+#chat .message.role-system .items .item [contenteditable].inner {
+    max-height: unset;
+    overflow-y: unset;
+}
+
+#chat .message .items .item.imagecontent {
+    position: relative;
+    max-width: 150px;
+    max-height: 150px;
+}
+
+#chat .message .items .item.imagecontent img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#chat .message .items .item .action {
+    position: absolute;
+    top: -1.75rem;
+    right: -1rem;
+    display: none;
+    padding: 0.25em;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#chat .message .items .item .action-button {
+    width: 2.2rem;
+    height: 2.2rem;
+    border: none;
+    border-radius: 50%;
+    font-size: 1rem;
+    color: white;
+    background-color: #6c757d;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+    cursor: pointer;
+}
+
+
+#chat .message .items .item:hover .action ,
+#chat .message .items .item .action:hover ,
+#chat .message .items .item:focus .action ,
+#chat .message .items .item:has(:focus) .action {
+    display: flex;
+    opacity: 1;
+    pointer-events: all;
+}
+
+.drag-over {
+    outline: 3px dashed #007bff; /* 青色の点線アウトライン */
+    outline-offset: -5px; /* 要素の内側にアウトラインを表示 */
+    background-color: rgba(0, 123, 255, 0.1); /* 薄い青色の背景 */
+    transition: all 0.2s ease-in-out; /* スムーズなトランジション */
+}
+
+.dropdown-toggle-split {
+    background-color: rgba(var(--bs-primary-rgb), 0.95);
+    border-color: rgba(var(--bs-primary-rgb), 0.95);
+}
+
+#stagingmedias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+
+.staging-media-item {
+    position: relative;
+    max-width: 100px;
+    max-height: 100px;
+    border: 1px solid #ddd;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.staging-media-item img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.staging-media-item .remove-staging-media {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: rgba(220, 53, 69, 0.8); /* Bootstrap danger color with transparency */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+#optionPanel {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    flex-wrap: wrap;
+    background-color: #f8f9fa;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 0.5rem;
+    padding: 0.5em;
+}
