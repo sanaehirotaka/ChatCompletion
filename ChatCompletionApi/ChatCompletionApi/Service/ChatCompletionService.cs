@@ -20,10 +20,6 @@ public class ChatCompletionService
     /// </summary>
     private readonly string[] apiKeys;
     /// <summary>
-    /// ロギング機能を提供します。
-    /// </summary>
-    private readonly ILogger<ChatCompletionService> _logger;
-    /// <summary>
     /// チャット補完の最大再試行回数。
     /// </summary>
     private readonly int _maxRetries;
@@ -32,9 +28,8 @@ public class ChatCompletionService
     /// ChatCompletionServiceの新しいインスタンスを初期化します。
     /// </summary>
     /// <param name="logger">ロガーインスタンス。</param>
-    public ChatCompletionService(ILogger<ChatCompletionService> logger)
+    public ChatCompletionService()
     {
-        _logger = logger;
         modelName = Environment.GetEnvironmentVariable("GEMINI_MODEL_NAME")
             ?? throw new InvalidOperationException("GEMINI_MODEL_NAME environment variable is not set.");
 
@@ -61,7 +56,7 @@ public class ChatCompletionService
             {
                 var builder = Kernel.CreateBuilder();
                 builder.AddGoogleAIGeminiChatCompletion(
-                    modelId: modelName,
+                    modelId: request.ModelName ?? modelName,
                     apiKey: apiKeys[(apiKeyIndex + i) % apiKeys.Length]
                 );
                 var kernel = builder.Build();
@@ -115,6 +110,11 @@ public class ChatCompletionService
     /// </summary>
     public class ChatRequest
     {
+        /// <summary>
+        /// 使用するGeminiモデルの名前
+        /// </summary>
+        public string? ModelName { get; set; }
+
         /// <summary>
         /// チャット履歴。
         /// </summary>
