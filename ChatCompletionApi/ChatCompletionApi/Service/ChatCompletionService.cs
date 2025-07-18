@@ -54,9 +54,10 @@ public class ChatCompletionService
         {
             try
             {
+                var modelName = request.ModelName ?? this.modelName;
                 var builder = Kernel.CreateBuilder();
                 builder.AddGoogleAIGeminiChatCompletion(
-                    modelId: request.ModelName ?? modelName,
+                    modelId: modelName,
                     apiKey: apiKeys[(apiKeyIndex + i) % apiKeys.Length]
                 );
                 var kernel = builder.Build();
@@ -64,7 +65,7 @@ public class ChatCompletionService
                 var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
                 var history = request.History;
-                var executionSettings = request.PromptExecutionSettings ?? GetDefaultExecuteSettings();
+                var executionSettings = request.PromptExecutionSettings ?? GetDefaultExecuteSettings(modelName);
                 List<ChatMessageContent> result = [.. await chatCompletionService.GetChatMessageContentsAsync(history, executionSettings, kernel)];
 
                 if (result.Any(contents => !string.IsNullOrEmpty(contents.Content)))
@@ -89,8 +90,19 @@ public class ChatCompletionService
     /// デフォルトのGeminiプロンプト実行設定を取得します。
     /// </summary>
     /// <returns>GeminiPromptExecutionSettingsのインスタンス。</returns>
-    private GeminiPromptExecutionSettings GetDefaultExecuteSettings()
+    private GeminiPromptExecutionSettings GetDefaultExecuteSettings(string modelName)
     {
+        if (modelName.StartsWith("gemini-2.0") || modelName.StartsWith("gemini-1."))
+        {
+            return new GeminiPromptExecutionSettings()
+            {
+                SafetySettings = [
+                    new (GeminiSafetyCategory.Harassment, GeminiSafetyThreshold.BlockNone),
+                    new (GeminiSafetyCategory.DangerousContent, GeminiSafetyThreshold.BlockNone),
+                    new (GeminiSafetyCategory.SexuallyExplicit, GeminiSafetyThreshold.BlockNone)
+                ]
+            };
+        }
         return new GeminiPromptExecutionSettings()
         {
             SafetySettings = [
@@ -100,7 +112,7 @@ public class ChatCompletionService
             ],
             ThinkingConfig = new()
             {
-                ThinkingBudget = 6144
+                ThinkingBudget = 12288
             }
         };
     }
