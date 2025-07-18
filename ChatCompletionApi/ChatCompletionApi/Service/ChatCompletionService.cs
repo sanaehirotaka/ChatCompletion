@@ -70,13 +70,15 @@ public class ChatCompletionService
 
                 var history = request.History;
                 var executionSettings = request.PromptExecutionSettings ?? GetDefaultExecuteSettings();
-                var result = await chatCompletionService.GetChatMessageContentsAsync(history, executionSettings, kernel);
+                List<ChatMessageContent> result = [.. await chatCompletionService.GetChatMessageContentsAsync(history, executionSettings, kernel)];
 
-                return [.. result];
+                if (result.Any(contents => !string.IsNullOrEmpty(contents.Content)))
+                {
+                    return result;
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during chat completion attempt {Attempt}. Retrying...", i + 1);
                 if (i == _maxRetries - 1) // Last attempt
                 {
                     throw new InvalidOperationException("Failed to complete chat after multiple retries.", ex);
