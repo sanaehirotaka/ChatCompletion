@@ -138,11 +138,11 @@ p:has(+ ul) {
     cursor: pointer;
 }
 
-
 #chat .message .items .item:hover .action ,
 #chat .message .items .item .action:hover ,
 #chat .message .items .item:focus .action ,
-#chat .message .items .item:has(:focus) .action {
+#chat .message .items .item:has(:focus) .action ,
+#chat .message .items .item:has([contenteditable]) .action{
     display: flex;
     opacity: 1;
     pointer-events: all;
