@@ -81,6 +81,7 @@ public class ChatController : ControllerBase
         Random.Shared.NextBytes(challengeRandom);
         var challenge = Convert.ToBase64String(challengeRandom);
 
+        Response.Headers.Append("Access-Control-Expose-Headers", "X-Auth-Ticket, X-Auth-Challenge");
         Response.Headers.Append("X-Auth-Ticket", ticket);
         Response.Headers.Append("X-Auth-Challenge", challenge);
 
@@ -103,6 +104,7 @@ public class ChatController : ControllerBase
             return false;
         }
 
+        Response.Headers.Append("Access-Control-Expose-Headers", "X-Auth-Ticket, X-Auth-Challenge");
         Response.Headers.Append("X-Auth-Ticket", authTicket);
         Response.Headers.Append("X-Auth-Challenge", challenge);
 
