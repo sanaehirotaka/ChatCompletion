@@ -1,3 +1,4 @@
+using ChatCompletionApi;
 using ChatCompletionApi.Service;
 using Microsoft.AspNetCore.ResponseCompression;
 
@@ -30,7 +31,10 @@ builder.Services.AddMemoryCache(opt =>
     opt.SizeLimit = 1024 * 16;
 });
 
+
 var app = builder.Build();
+
+app.UseMiddleware<DecompressMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
