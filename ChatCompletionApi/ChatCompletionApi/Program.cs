@@ -1,8 +1,16 @@
 using ChatCompletionApi.Service;
+using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<ChatCompletionService>();
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<GzipCompressionProvider>();
+    options.Providers.Add<BrotliCompressionProvider>();
+});
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
