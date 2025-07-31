@@ -10,9 +10,9 @@ marked.use({
 
 class FileDialog {
     /**
-     * @param {FileDialogOptions} options 
+     * @param {FileDialogOptions|undefined} options 
      */
-    constructor(options) {
+    constructor(options = undefined) {
         this.options = options;
     }
     /**
@@ -22,7 +22,7 @@ class FileDialog {
         return new Promise((resolve, reject) => {
             const input = document.createElement("input");
             input.setAttribute("type", "file");
-            if (this.options.accept) {
+            if (this.options?.accept) {
                 input.setAttribute("accept", this.options.accept);
             }
             input.setAttribute("hidden", "");
@@ -196,9 +196,16 @@ class ChatUI {
      * @param {...*} message - メッセージの内容。
      */
     appendMessage(role, visibility, ...message) {
-        const contents = this.chatManager.history.append(new ChatMessageContent(role, ...message));
+        this.append(new ChatMessageContent(role, ...message));
+    }
+
+    /**
+     * @param {ChatMessageContent} content 
+     */
+    append(content) {
+        const contents = this.chatManager.history.append(content);
         for (const content of contents) {
-            const element = this.#createMessageElement(content, visibility);
+            const element = this.#createMessageElement(content, content.role != "system");
             this.root.append(element);
             element.querySelector("[tabindex]")?.focus();
         }
@@ -555,50 +562,53 @@ document.querySelector("#promptVisibilityHidden").addEventListener("click", e =>
     document.querySelector("#promptVisibilityHidden").setAttribute("hidden", "");
 });
 
-document.querySelector("#saveState").addEventListener("click", () => {
-    const stateContent = chat.chatManager.history.histories.map(content => {
-        const items = content.items.map(item => {
-            if (item instanceof TextContent) {
-                return "`" + item.text.replaceAll("`", "\\`") + "`";
-            }
-            else if (item instanceof ImageContent) {
-                return `ChatUI.imageContentToImage("${item.mimeType}", "${item.data}")`;
-            }
-        });
-        return `chat.appendMessage("${content.role}", true, ${items.join(", ")});`
-    });
-    const blob = new Blob([stateContent.join("\n")], { type: 'text/javascript;charset=utf-8' });
+async function gzipCompress(text) {
+    const textEncoderStream = new TextEncoderStream();
+    const compressionStream = new CompressionStream('gzip');
+    const readableStream = textEncoderStream.readable.pipeThrough(compressionStream);
+    const writer = textEncoderStream.writable.getWriter();
+    writer.write(text);
+    writer.close();
+    const response = new Response(readableStream);
+    const compressedBuffer = await response.arrayBuffer();
+    return new Uint8Array(compressedBuffer);
+}
+async function gzipDecompressFile(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const readableStreamFromArrayBuffer = new Response(arrayBuffer).body;
+    const decompressionStream = new DecompressionStream('gzip');
+    const decompressedStream = readableStreamFromArrayBuffer.pipeThrough(decompressionStream);
+    const decompressedResponse = new Response(decompressedStream);
+    const decompressedBytes = await decompressedResponse.arrayBuffer();
+    const textDecoder = new TextDecoder();
+    return textDecoder.decode(decompressedBytes);
+}
+
+document.querySelector("#saveState").addEventListener("click", async () => {
+    const stateContent = await gzipCompress(JSON.stringify(chat.chatManager.history.histories));
+    const blob = new Blob([stateContent], { type: 'application/x-state' });
     const url = URL.createObjectURL(blob);
-    
     const a = document.createElement('a');
     a.href = url;
-    a.download = `state.${Date.now()}.js`; // ダウンロード時のファイル名
-    
-    document.body.appendChild(a); // DOMに追加しないとFirefoxなどで動作しない場合がある
-    a.click(); // クリックイベントを発生させる
-    document.body.removeChild(a); // 要素を削除
-    
-    URL.revokeObjectURL(url); // URLを解放してメモリをクリーンアップ
+    a.download = `state.${Date.now()}.gzip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 });
 
 document.querySelector("#loadState").addEventListener("click", async () => {
-    const files = await new FileDialog({
-        accept: "text/*"
-    }).open();
-    files.forEach(async file => {
-        const scriptDataURL = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                resolve(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        });
-        const script = document.createElement("script");
-        script.setAttribute("src", scriptDataURL);
-        document.body.append(script);
-    });
+    const files = await new FileDialog({}).open();
     chat.chatManager.history.histories = [];
     chat.root.replaceChildren();
+    files.forEach(async file => {
+        /** @type {Array<ChatMessageContent>} */
+        const json = JSON.parse(await gzipDecompressFile(file));
+        for (const content of json) {
+            chat.append(ChatMessageContent.fromObject(content));
+        }
+        await chat.completion();
+    });
 });
 
 window.addEventListener("hashchange", event => {

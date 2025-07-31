@@ -278,7 +278,7 @@ class ChatHistory {
      * チャット履歴に新しいメッセージを追加します。
      * @param {...ChatMessageContent} contents - 追加するチャットメッセージコンテンツ。
      * @throws {Error} ChatMessageContent のインスタンスでないコンテンツが渡された場合。
-     * @returns {ChatMessageContent} 追加された ChatMessageContent オブジェクト。
+     * @returns {Array<ChatMessageContent>} 追加された ChatMessageContent オブジェクト。
      */
     append(...contents) {
         if (contents.some(content => !(content instanceof ChatMessageContent))) {
