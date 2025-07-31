@@ -3,7 +3,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace ChatCompletionApi;
 
-public class DecompressMiddleware(RequestDelegate next)
+public class DecompressMiddleware(RequestDelegate next, ILogger<DecompressMiddleware> logger)
 {
     public async Task InvokeAsync(HttpContext httpContent)
     {
@@ -14,10 +14,11 @@ public class DecompressMiddleware(RequestDelegate next)
             {
                 DecompressGzip(httpContent);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Failed to decompress request body due to invalid data.");
                 httpContent.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await httpContent.Response.WriteAsync("Invalid gzip compressed Data");
+                await httpContent.Response.WriteAsync("Invalid compressed Data");
                 return;
             }
         }
@@ -27,10 +28,11 @@ public class DecompressMiddleware(RequestDelegate next)
             {
                 DecompressBr(httpContent);
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Failed to decompress request body due to invalid data.");
                 httpContent.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await httpContent.Response.WriteAsync("Invalid brotli compressed Data");
+                await httpContent.Response.WriteAsync("Invalid compressed Data");
                 return;
             }
         }
