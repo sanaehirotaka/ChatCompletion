@@ -12,7 +12,7 @@ public class DecompressMiddleware(RequestDelegate next, ILogger<DecompressMiddle
         {
             try
             {
-                DecompressGzip(httpContent);
+                await DecompressGzip(httpContent);
             }
             catch (Exception ex)
             {
@@ -26,7 +26,7 @@ public class DecompressMiddleware(RequestDelegate next, ILogger<DecompressMiddle
         {
             try
             {
-                DecompressBr(httpContent);
+                await DecompressBr(httpContent);
             }
             catch (Exception ex)
             {
@@ -39,25 +39,25 @@ public class DecompressMiddleware(RequestDelegate next, ILogger<DecompressMiddle
         await next(httpContent);
     }
 
-    private void DecompressGzip(HttpContext httpContent)
+    private async Task DecompressGzip(HttpContext httpContent)
     {
         httpContent.Request.EnableBuffering();
         using var stream = new GZipStream(httpContent.Request.Body, CompressionMode.Decompress, leaveOpen: true);
 
         var memory = new MemoryStream();
-        stream.CopyTo(memory);
+        await stream.CopyToAsync(memory);
         memory.Seek(0, SeekOrigin.Begin);
 
         ApplyStream(httpContent, memory);
     }
 
-    private void DecompressBr(HttpContext httpContent)
+    private async Task DecompressBr(HttpContext httpContent)
     {
         httpContent.Request.EnableBuffering();
         using var stream = new BrotliStream(httpContent.Request.Body, CompressionMode.Decompress, leaveOpen: true);
 
         var memory = new MemoryStream();
-        stream.CopyTo(memory);
+        await stream.CopyToAsync(memory);
         memory.Seek(0, SeekOrigin.Begin);
 
         ApplyStream(httpContent, memory);
