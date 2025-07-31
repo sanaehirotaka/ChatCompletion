@@ -152,35 +152,40 @@ class ChatUI {
      * @param {number|undefined} index - 再生成するメッセージのインデックス。指定しない場合は新しい補完を行います。
      */
     async completion(index = undefined) {
+        document.querySelectorAll(".error-message").forEach(e => e.remove());
         const [progress, timerId] = this.#completingStart(index);
         this.chatManager.modelName = document.querySelector("#modelName").value;
-        try {
-            if (index === undefined) {
-                const contents = await this.chatManager.completion();
-                if (Array.isArray(contents) && contents.length > 0) {
-                    this.chatManager.history.append(contents[0]);
-                    const element = this.#createMessageElement(contents[0]);
-                    this.root.append(element);
-                    element.querySelector("[tabindex]").focus();
+        for (let i = 0; i < 3; i++) {
+            try {
+                if (index === undefined) {
+                    const contents = await this.chatManager.completion();
+                    if (Array.isArray(contents) && contents.length > 0) {
+                        this.chatManager.history.append(contents[0]);
+                        const element = this.#createMessageElement(contents[0]);
+                        this.root.append(element);
+                        element.querySelector("[tabindex]").focus();
+                    }
+                } else {
+                    const contents = await this.chatManager.clone(0, index).completion();
+                    if (Array.isArray(contents) && contents.length > 0) {
+                        this.chatManager.history.histories[index] = contents[0];
+                        const itemsDiv = this.root.querySelectorAll(".message")[index].querySelector(".items");
+                        this.#replaceItemsElement(contents[0], itemsDiv);
+                        itemsDiv.querySelector("[tabindex]").focus();
+                    }
                 }
-            } else {
-                const contents = await this.chatManager.clone(0, index).completion();
-                if (Array.isArray(contents) && contents.length > 0) {
-                    this.chatManager.history.histories[index] = contents[0];
-                    const itemsDiv = this.root.querySelectorAll(".message")[index].querySelector(".items");
-                    this.#replaceItemsElement(contents[0], itemsDiv);
-                    itemsDiv.querySelector("[tabindex]").focus();
-                }
+                document.querySelectorAll(".error-message").forEach(e => e.remove());
+                // End
+                return;
+            } catch (error) {
+                console.error("Completion error:", error);
+                const errorMessage = document.createElement("div");
+                errorMessage.classList.add("error-message");
+                errorMessage.textContent = `エラーが発生しました: ${error.message} ${i + 1}/3`;
+                this.root.append(errorMessage);
+            } finally {
+                this.#completingEnd(progress, timerId);
             }
-            document.querySelector(".error-message")?.remove();
-        } catch (error) {
-            console.error("Completion error:", error);
-            const errorMessage = document.createElement("div");
-            errorMessage.classList.add("error-message");
-            errorMessage.textContent = `エラーが発生しました: ${error.message}`;
-            this.root.append(errorMessage);
-        } finally {
-            this.#completingEnd(progress, timerId);
         }
     }
 
