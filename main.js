@@ -172,6 +172,7 @@ class ChatUI {
                     itemsDiv.querySelector("[tabindex]").focus();
                 }
             }
+            document.querySelector(".error-message")?.remove();
         } catch (error) {
             console.error("Completion error:", error);
             const errorMessage = document.createElement("div");
