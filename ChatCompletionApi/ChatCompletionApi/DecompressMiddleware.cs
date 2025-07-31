@@ -40,7 +40,7 @@ public class DecompressMiddleware(RequestDelegate next)
     private void DecompressGzip(HttpContext httpContent)
     {
         httpContent.Request.EnableBuffering();
-        using var stream = new GZipStream(httpContent.Request.Body, CompressionMode.Decompress);
+        using var stream = new GZipStream(httpContent.Request.Body, CompressionMode.Decompress, leaveOpen: true);
 
         var memory = new MemoryStream();
         stream.CopyTo(memory);
@@ -52,7 +52,7 @@ public class DecompressMiddleware(RequestDelegate next)
     private void DecompressBr(HttpContext httpContent)
     {
         httpContent.Request.EnableBuffering();
-        using var stream = new BrotliStream(httpContent.Request.Body, CompressionMode.Decompress);
+        using var stream = new BrotliStream(httpContent.Request.Body, CompressionMode.Decompress, leaveOpen: true);
 
         var memory = new MemoryStream();
         stream.CopyTo(memory);
