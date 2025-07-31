@@ -41,7 +41,7 @@ class ChatManager {
                 "Content-Type": "application/json",
                 "Content-Encoding": "gzip"
             },
-            body: this.#compress(JSON.stringify(req)),
+            body: await this.#compress(JSON.stringify(req)),
         }));
         const res = await response.json();
         return res.map(ChatMessageContent.fromObject);
