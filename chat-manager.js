@@ -39,11 +39,24 @@ class ChatManager {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Content-Encoding": "gzip"
             },
-            body: JSON.stringify(req),
+            body: this.#compress(JSON.stringify(req)),
         }));
         const res = await response.json();
         return res.map(ChatMessageContent.fromObject);
+    }
+
+    async #compress(text) {
+        const textEncoderStream = new TextEncoderStream();
+        const compressionStream = new CompressionStream('gzip');
+        const readableStream = textEncoderStream.readable.pipeThrough(compressionStream);
+        const writer = textEncoderStream.writable.getWriter();
+        writer.write(text);
+        writer.close();
+        const response = new Response(readableStream);
+        const compressedBuffer = await response.arrayBuffer();
+        return new Uint8Array(compressedBuffer);
     }
 
     /**
