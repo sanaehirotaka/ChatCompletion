@@ -18,6 +18,7 @@ public class DecompressMiddleware(RequestDelegate next)
             {
                 httpContent.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await httpContent.Response.WriteAsync("Invalid gzip compressed Data");
+                return;
             }
         }
         else if (encoding == "br")
@@ -30,6 +31,7 @@ public class DecompressMiddleware(RequestDelegate next)
             {
                 httpContent.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await httpContent.Response.WriteAsync("Invalid brotli compressed Data");
+                return;
             }
         }
         await next(httpContent);
