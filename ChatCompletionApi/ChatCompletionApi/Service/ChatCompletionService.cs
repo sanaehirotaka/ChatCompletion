@@ -80,13 +80,11 @@ public class ChatCompletionService
             {
                 if (i == _maxRetries - 1) // Last attempt
                 {
-                    throw new InvalidOperationException("Failed to complete chat after multiple retries.", ex);
+                    throw new InvalidOperationException($"Failed to complete chat after multiple retries.\n - Request:\n{JsonSerializer.Serialize(request)}\n - Response: {JsonSerializer.Serialize(result)}", ex);
                 }
             }
         }
-        var req = JsonSerializer.Serialize(request);
-        var res = JsonSerializer.Serialize(result);
-        var message = $"Chat completion failed after {_maxRetries} attempts.\n - Request:\n{req}\n - Response: {res}";
+        var message = $"Chat completion failed after {_maxRetries} attempts.\n - Request:\n{JsonSerializer.Serialize(request)}\n - Response: {JsonSerializer.Serialize(result)}";
         // この行は、ループが常に最後の試行で例外をスローする場合、到達しないはずです。
         // ただし、コンパイラを満たすために、汎用例外をスローするか、最後の例外を再スローできます。
         throw new InvalidOperationException(message);
