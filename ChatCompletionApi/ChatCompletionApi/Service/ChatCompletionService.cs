@@ -101,10 +101,10 @@ public class ChatCompletionService
         return new GeminiPromptExecutionSettings()
         {
             SafetySettings = [
-                new (new GeminiSafetyCategory("HARM_CATEGORY_HARASSMENT"),  new GeminiSafetyThreshold("OFF")),
-                new (new GeminiSafetyCategory("HARM_CATEGORY_HATE_SPEECH"),  new GeminiSafetyThreshold("OFF")),
-                new (new GeminiSafetyCategory("HARM_CATEGORY_SEXUALLY_EXPLICIT"),  new GeminiSafetyThreshold("OFF")),
-                new (new GeminiSafetyCategory("HARM_CATEGORY_DANGEROUS_CONTEN"),  new GeminiSafetyThreshold("OFF"))
+                new (new GeminiSafetyCategory("HARM_CATEGORY_HARASSMENT"), GeminiSafetyThreshold.BlockNone),
+                new (new GeminiSafetyCategory("HARM_CATEGORY_HATE_SPEECH"), GeminiSafetyThreshold.BlockNone),
+                new (new GeminiSafetyCategory("HARM_CATEGORY_SEXUALLY_EXPLICIT"), GeminiSafetyThreshold.BlockNone),
+                new (new GeminiSafetyCategory("HARM_CATEGORY_DANGEROUS_CONTEN"), GeminiSafetyThreshold.BlockNone)
             ]
         };
     }
