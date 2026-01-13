@@ -100,7 +100,6 @@ public class ChatCompletionService
         {
             SafetySettings = [
                 new (new GeminiSafetyCategory("HARM_CATEGORY_HARASSMENT"), GeminiSafetyThreshold.BlockNone),
-                new (new GeminiSafetyCategory("HARM_CATEGORY_HATE_SPEECH"), GeminiSafetyThreshold.BlockNone),
                 new (new GeminiSafetyCategory("HARM_CATEGORY_SEXUALLY_EXPLICIT"), GeminiSafetyThreshold.BlockNone),
                 new (new GeminiSafetyCategory("HARM_CATEGORY_DANGEROUS_CONTEN"), GeminiSafetyThreshold.BlockNone)
             ]
