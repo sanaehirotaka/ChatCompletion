@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.Google;
@@ -50,6 +51,8 @@ public class ChatCompletionService
     {
         var apiKeyIndex = Random.Shared.Next() % apiKeys.Length;
 
+        List<ChatMessageContent> result = [];
+
         for (var i = 0; i < _maxRetries; i++)
         {
             try
@@ -66,7 +69,7 @@ public class ChatCompletionService
 
                 var history = request.History;
                 var executionSettings = request.PromptExecutionSettings ?? GetDefaultExecuteSettings(modelName);
-                List<ChatMessageContent> result = [.. await chatCompletionService.GetChatMessageContentsAsync(history, executionSettings, kernel)];
+                result = [.. await chatCompletionService.GetChatMessageContentsAsync(history, executionSettings, kernel)];
 
                 if (result.Any(contents => !string.IsNullOrEmpty(contents.Content)))
                 {
@@ -81,9 +84,12 @@ public class ChatCompletionService
                 }
             }
         }
+        var req = JsonSerializer.Serialize(request);
+        var res = JsonSerializer.Serialize(result);
+        var message = $"Chat completion failed after {_maxRetries} attempts.\n - Request:\n{req}\n - Response: {res}";
         // この行は、ループが常に最後の試行で例外をスローする場合、到達しないはずです。
         // ただし、コンパイラを満たすために、汎用例外をスローするか、最後の例外を再スローできます。
-        throw new InvalidOperationException("予期せぬエラー: チャット補完ループが成功または再スローせずに終了しました。");
+        throw new InvalidOperationException(message);
     }
 
     /// <summary>
@@ -92,28 +98,13 @@ public class ChatCompletionService
     /// <returns>GeminiPromptExecutionSettingsのインスタンス。</returns>
     private GeminiPromptExecutionSettings GetDefaultExecuteSettings(string modelName)
     {
-        if (modelName.StartsWith("gemini-2.0") || modelName.StartsWith("gemini-1."))
-        {
-            return new GeminiPromptExecutionSettings()
-            {
-                SafetySettings = [
-                    new (GeminiSafetyCategory.Harassment, GeminiSafetyThreshold.BlockNone),
-                    new (GeminiSafetyCategory.DangerousContent, GeminiSafetyThreshold.BlockNone),
-                    new (GeminiSafetyCategory.SexuallyExplicit, GeminiSafetyThreshold.BlockNone)
-                ]
-            };
-        }
         return new GeminiPromptExecutionSettings()
         {
             SafetySettings = [
                 new (GeminiSafetyCategory.Harassment, GeminiSafetyThreshold.BlockNone),
                 new (GeminiSafetyCategory.DangerousContent, GeminiSafetyThreshold.BlockNone),
-                new (GeminiSafetyCategory.SexuallyExplicit, GeminiSafetyThreshold.BlockNone)
-            ],
-            ThinkingConfig = new()
-            {
-                ThinkingBudget = 12288
-            }
+                new (GeminiSafetyCategory.SexuallyExplicit, new GeminiSafetyThreshold("OFF"))
+            ]
         };
     }
 
