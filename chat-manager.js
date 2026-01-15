@@ -16,9 +16,11 @@ class ChatManager {
     /**
      * ChatManager の新しいインスタンスを作成します。
      * @param {string} endpointUrl - 補完リクエストを送信するエンドポイントのURL。
+     * @param {string} [modelName] - 利用するモデル名。
      */
-    constructor(endpointUrl) {
+    constructor(endpointUrl, modelName = undefined) {
         this.endpointUrl = endpointUrl;
+        this.modelName = modelName;
     }
 
     /**
@@ -67,7 +69,7 @@ class ChatManager {
      * @returns {ChatManager} 新しい ChatManager インスタンス。
      */
     clone(start, end) {
-        const newInstance = new ChatManager(this.endpointUrl);
+        const newInstance = new ChatManager(this.endpointUrl, this.modelName);
         newInstance.history = this.history.clone(start, end);
         return newInstance;
     }
